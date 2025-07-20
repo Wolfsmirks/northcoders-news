@@ -1,6 +1,4 @@
-const {
-  convertTimestampToDate
-} = require("../db/seeds/utils");
+const { convertTimestampToDate, formatData } = require("../db/seeds/utils");
 
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
@@ -38,3 +36,37 @@ describe("convertTimestampToDate", () => {
   });
 });
 
+describe("formatData", () => {
+  test("returns a new array", () => {
+    const input = [{ key: "value" }];
+    const result = formatData(input);
+    expect(result).not.toBe(input);
+    expect(result).toBeArray();
+  });
+  test("returns a multidimensional array", () => {
+    const input = [
+      { key1: "value1", key2: "value2" },
+      { key1: "value1", key2: "value2" },
+    ];
+    const result = formatData(input);
+    expect(result.every(Array.isArray)).toBe(true);
+  });
+  test("formats data into arrays of property values", () => {
+    const input = [
+      { key1: "value1", key2: "value2" },
+      { key1: "value1", key2: "value2" },
+    ];
+    const expected = [
+      ["value1", "value2"],
+      ["value1", "value2"],
+    ];
+    const result = formatData(input);
+    expect(expected).toEqual(result);
+  });
+  test("does not mutate the input", () => {
+    const input = [{ key: "value" }];
+    formatData(input);
+    const control = [{ key: "value" }];
+    expect(input).toEqual(control);
+  });
+});

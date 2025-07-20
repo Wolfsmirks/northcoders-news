@@ -1,0 +1,3 @@
+- Create a formatResponse() function to format query responses for easier viewing (optional).
+- Add awards and user_awards tables
+- Add moderator functionality
