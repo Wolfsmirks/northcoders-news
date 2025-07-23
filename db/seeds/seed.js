@@ -74,7 +74,6 @@ const seed = async ({
       "created_at"
     );
 
-    console.log(formatData(emojiData));
     await insertData("emojis", formatData(emojiData), "emoji");
   } catch (err) {
     return err;
