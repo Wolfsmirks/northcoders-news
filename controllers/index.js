@@ -3,3 +3,5 @@ exports.getTopics = require("./topics.controllers").getTopics;
 exports.getArticles = require("./articles.controllers").getArticles;
 exports.getUsers = require("./users.controllers").getUsers;
 exports.getArticle = require("./articles.controllers").getArticle;
+exports.getCommentsOnArticle =
+  require("./articles.controllers").getCommentsOnArticle;

@@ -32,3 +32,18 @@ exports.fetchArticle = async (id) => {
   );
   return article[0] || Promise.reject({ status: 404, msg: "404 Not Found" });
 };
+
+exports.fetchCommentsOnArticle = async (id) => {
+  const { rows: comments } = await db.query(
+    `
+    SELECT *
+    FROM comments
+    WHERE article_id = $1
+    ORDER BY created_at DESC;
+    `,
+    [id]
+  );
+  return comments.length > 0
+    ? comments
+    : Promise.reject({ status: 404, msg: "404 Not Found" });
+};
