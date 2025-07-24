@@ -20,3 +20,15 @@ exports.fetchArticles = async () => {
   );
   return articles;
 };
+
+exports.fetchArticle = async (id) => {
+  const { rows: article } = await db.query(
+    `
+    SELECT *
+    FROM articles
+    WHERE article_id = $1;
+    `,
+    [id]
+  );
+  return article[0] || Promise.reject({ status: 404, msg: "404 Not Found" });
+};
