@@ -130,3 +130,57 @@ describe("GET /api/articles/:article_id/comments", () => {
     expect(err).toEqual({ msg: "404 Not Found" });
   });
 });
+describe("POST /api/articles/:article_id/comments", () => {
+  it("200: responds with the posted comment", async () => {
+    const data = {
+      username: "butter_bridge",
+      body: "comment",
+    };
+
+    const {
+      body: { comment },
+    } = await request(app)
+      .post("/api/articles/1/comments")
+      .send(data)
+      .expect(200);
+
+    expect(comment).toEqual(
+      expect.objectContaining({
+        comment_id: expect.any(Number),
+        article_id: 1,
+        body: "comment",
+        votes: 0,
+        author: "butter_bridge",
+        created_at: expect.any(String),
+      })
+    );
+  });
+  it("400: responds with an error message when data fields are invalid", async () => {
+    const data = {
+      user: "butter_bridge",
+      text: "comment",
+    };
+
+    const { body: err } = await request(app)
+      .post("/api/articles/1/comments")
+      .send(data)
+      .expect(400);
+
+    expect(err).toEqual({ msg: "400 Bad Request: Invalid Field(s)" });
+  });
+  it("400: responds with an error message when the user does not exist", async () => {
+    const data = {
+      username: "invalid_username",
+      body: "comment",
+    };
+
+    const { body: err } = await request(app)
+      .post("/api/articles/1/comments")
+      .send(data)
+      .expect(400);
+
+    expect(err).toEqual({
+      msg: "400 Bad Request: must be a user to comment",
+    });
+  });
+});

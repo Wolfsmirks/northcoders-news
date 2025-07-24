@@ -5,3 +5,4 @@ exports.getUsers = require("./users.controllers").getUsers;
 exports.getArticle = require("./articles.controllers").getArticle;
 exports.getCommentsOnArticle =
   require("./articles.controllers").getCommentsOnArticle;
+exports.postComment = require("./articles.controllers").postComment;

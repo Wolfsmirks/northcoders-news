@@ -2,6 +2,7 @@ const {
   fetchArticles,
   fetchArticle,
   fetchCommentsOnArticle,
+  postComment,
 } = require("../models/articles.models");
 
 exports.getArticles = async (req, res) => {
@@ -17,4 +18,9 @@ exports.getArticle = async ({ params: { article_id } }, res) => {
 exports.getCommentsOnArticle = async ({ params: { article_id } }, res) => {
   const comments = await fetchCommentsOnArticle(article_id);
   res.send({ comments });
+};
+
+exports.postComment = async ({ params: { article_id }, body }, res) => {
+  const comment = await postComment(article_id, body);
+  res.send({ comment });
 };

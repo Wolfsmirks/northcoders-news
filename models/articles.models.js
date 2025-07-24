@@ -47,3 +47,22 @@ exports.fetchCommentsOnArticle = async (id) => {
     ? comments
     : Promise.reject({ status: 404, msg: "404 Not Found" });
 };
+
+exports.postComment = async (id, { body, username }) => {
+  if (body && username) {
+    const { rows: comments } = await db.query(
+      `
+      INSERT INTO comments (article_id, body, author)
+      VALUES ($1, $2, $3)
+      RETURNING *;
+      `,
+      [id, body, username]
+    );
+    return comments[0];
+  } else {
+    return Promise.reject({
+      status: 400,
+      msg: "400 Bad Request: Invalid Field(s)",
+    });
+  }
+};

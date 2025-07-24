@@ -61,9 +61,9 @@ exports.createComments = async () => {
     CREATE TABLE comments (
       comment_id SERIAL PRIMARY KEY,
       article_id INT REFERENCES articles(article_id),
-      body TEXT,
+      body TEXT NOT NULL,
       votes INT DEFAULT 0,
-      author VARCHAR REFERENCES users(username),
+      author VARCHAR REFERENCES users(username) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     `);
