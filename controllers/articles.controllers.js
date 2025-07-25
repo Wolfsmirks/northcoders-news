@@ -1,17 +1,18 @@
 const {
   fetchArticles,
-  fetchArticle,
+  fetchArticleById,
   fetchCommentsOnArticle,
   postComment,
+  updateVotes,
 } = require("../models/articles.models");
 
-exports.getArticles = async (req, res) => {
-  const articles = await fetchArticles();
+exports.getArticles = async ({ query }, res) => {
+  const articles = await fetchArticles(query);
   res.send({ articles });
 };
 
-exports.getArticle = async ({ params: { article_id } }, res) => {
-  const article = await fetchArticle(article_id);
+exports.getArticleById = async ({ params: { article_id } }, res) => {
+  const article = await fetchArticleById(article_id);
   res.send({ article });
 };
 
@@ -23,4 +24,12 @@ exports.getCommentsOnArticle = async ({ params: { article_id } }, res) => {
 exports.postComment = async ({ params: { article_id }, body }, res) => {
   const comment = await postComment(article_id, body);
   res.send({ comment });
+};
+
+exports.patchArticle = async (
+  { params: { article_id }, body: { inc_votes } },
+  res
+) => {
+  const article = await updateVotes(article_id, inc_votes);
+  res.send({ article });
 };

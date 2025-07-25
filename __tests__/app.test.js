@@ -77,6 +77,7 @@ describe("GET /api/articles/:article_id", () => {
         votes: 100,
         article_img_url:
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: 11,
       })
     );
   });
@@ -182,5 +183,62 @@ describe("POST /api/articles/:article_id/comments", () => {
     expect(err).toEqual({
       msg: "400 Bad Request: must be a user to comment",
     });
+  });
+});
+describe("PATCH /api/articles/:article_id", () => {
+  it("200: responds with the updated article object", async () => {
+    const newVote = 1;
+    const data = {
+      inc_votes: newVote,
+    };
+
+    const {
+      body: { article },
+    } = await request(app).patch("/api/articles/1").send(data).expect(200);
+
+    expect(article).toEqual(
+      expect.objectContaining({
+        article_id: 1,
+        title: "Living in the shadow of a great man",
+        topic: "mitch",
+        author: "butter_bridge",
+        body: "I find this existence challenging",
+        created_at: "2020-07-09T20:11:00.000Z",
+        votes: 101,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+    );
+  });
+});
+describe("DELETE /api/comments/:comment_id", () => {
+  it("204: response includes a noContent key of value true", async () => {
+    const { noContent } = await request(app)
+      .delete("/api/comments/1")
+      .expect(204);
+    expect(noContent).toBe(true);
+  });
+});
+describe("GET /api/articles (sorting queries)", () => {
+  it("200: responds with an array of article objects, sorted by column_name in the specified order", async () => {
+    const {
+      body: { articles },
+    } = await request(app)
+      .get("/api/articles?sort_by=title&order=ASC")
+      .expect(200);
+    expect(articles).toBeSorted({ key: "title" });
+  });
+});
+describe("GET /api/articles (topic query)", () => {
+  it("200: responds with an array of article objects, filtered by column_name", async () => {
+    const {
+      body: { articles },
+    } = await request(app)
+      .get("/api/articles?filter_by=topic&topic=cats")
+      .expect(200);
+
+    articles.forEach((article) =>
+      expect(article).toHaveProperty("topic", "cats")
+    );
   });
 });

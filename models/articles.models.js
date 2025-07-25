@@ -1,32 +1,72 @@
 const db = require("../db/connection");
+const format = require("pg-format");
 
-exports.fetchArticles = async () => {
+exports.fetchArticles = async (query) => {
+  const validColumns = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "created_at",
+    "votes",
+    "article_img_url",
+  ];
+  const validOrders = ["ASC", "DESC"];
+
+  const sortBy = validColumns.includes(query.sort_by)
+    ? query.sort_by
+    : "created_at";
+  const order = validOrders.includes(query.order)
+    ? query.order.toUpperCase()
+    : "DESC";
+
+  let filter = "";
+  if (validColumns.includes(query.filter_by) && query.topic) {
+    filter = format(
+      `
+      WHERE a.%I = %L
+      `,
+      query.filter_by,
+      query.topic
+    );
+  }
+
   const { rows: articles } = await db.query(
-    `
-    SELECT 
-      a.author,
-      a.title, 
-      a.article_id, 
-      a.topic, 
-      a.created_at, 
-      a.votes, 
-      a.article_img_url, 
-      COUNT(c.comment_id)::INT AS comment_count
-    FROM articles a
-    LEFT JOIN comments c ON a.article_id = c.article_id
-    GROUP BY a.article_id
-    ORDER BY a.created_at DESC;
-    `
+    format(
+      `
+      SELECT 
+        a.author, 
+        a.title, 
+        a.article_id, 
+        a.topic, 
+        a.created_at, 
+        a.votes, 
+        a.article_img_url, 
+        COUNT(c.comment_id)::INT AS comment_count 
+      FROM articles a 
+      LEFT JOIN comments c ON a.article_id = c.article_id 
+      %s
+      GROUP BY a.article_id 
+      ORDER BY a.%I %s
+      `,
+      filter,
+      sortBy,
+      order
+    )
   );
   return articles;
 };
 
-exports.fetchArticle = async (id) => {
+exports.fetchArticleById = async (id) => {
   const { rows: article } = await db.query(
     `
-    SELECT *
-    FROM articles
-    WHERE article_id = $1;
+    SELECT
+      a.*,
+      COUNT(c.comment_id)::INT AS comment_count
+    FROM articles a
+    LEFT JOIN comments c ON a.article_id = c.article_id
+    WHERE a.article_id = $1
+    GROUP BY a.article_id;
     `,
     [id]
   );
@@ -65,4 +105,17 @@ exports.postComment = async (id, { body, username }) => {
       msg: "400 Bad Request: Invalid Field(s)",
     });
   }
+};
+
+exports.updateVotes = async (id, inc_votes) => {
+  const { rows: articles } = await db.query(
+    `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *;
+    `,
+    [inc_votes, id]
+  );
+  return articles[0];
 };
