@@ -26,6 +26,50 @@ describe("topic endpoints", () => {
       expect(topics).toEqual(data.topicData);
     });
   });
+  describe("POST /api/topics", () => {
+    it("200: responds with the posted topic object", async () => {
+      const inputTopic = {
+        description: "description",
+        slug: "new_topic",
+        img_url: "img_url",
+      };
+      const {
+        body: { topic },
+      } = await request(app).post("/api/topics").send(inputTopic).expect(200);
+      expect(topic).toEqual({
+        description: "description",
+        slug: "new_topic",
+        img_url: "img_url",
+      });
+    });
+    it("200: img_url defaults to null when omitted", async () => {
+      const inputTopic = {
+        description: "description",
+        slug: "new_topic",
+        img_url: "img_url",
+      };
+      const {
+        body: { topic },
+      } = await request(app).post("/api/topics").send(inputTopic).expect(200);
+      expect(topic).toEqual({
+        description: "description",
+        slug: "new_topic",
+        img_url: "img_url",
+      });
+    });
+    it("400: responds with an error if the topic already exists", async () => {
+      const inputTopic = {
+        description: "description",
+        slug: "cats",
+        img_url: "img_url",
+      };
+      const { body: err } = await request(app)
+        .post("/api/topics")
+        .send(inputTopic)
+        .expect(400);
+      expect(err).toEqual({ msg: "400 Bad Request" });
+    });
+  });
 });
 
 describe("user endpoints", () => {
