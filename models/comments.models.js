@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 
-exports.removeComment = async (id) => {
+exports.deleteComment = async (id) => {
   const { rows: comments } = await db.query(
     `
     DELETE FROM comments
@@ -8,6 +8,19 @@ exports.removeComment = async (id) => {
     RETURNING *;
     `,
     [id]
+  );
+  return comments[0];
+};
+
+exports.updateVotes = async (id, inc_votes) => {
+  const { rows: comments } = await db.query(
+    `
+    UPDATE comments
+    SET votes = votes + $1
+    WHERE comment_id = $2
+    RETURNING *;
+    `,
+    [inc_votes, id]
   );
   return comments[0];
 };

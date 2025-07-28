@@ -1,3 +1,5 @@
-exports.handleBadRequest = require("./handleBadRequest").handleBadRequest;
-exports.handleNotFound = require("./handleNotFound").handleNotFound;
-exports.handleFkConstraint = require("./handleFkConstraint").handleFkConstraint;
+const { handleBadRequest } = require("./handleBadRequest");
+const { handleCustomError } = require("./handleCustomError");
+const { handleServerError } = require("./handleServerError");
+
+module.exports = { handleBadRequest, handleCustomError, handleServerError };

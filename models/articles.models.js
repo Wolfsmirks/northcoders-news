@@ -1,7 +1,12 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-exports.fetchArticles = async (query) => {
+exports.fetchArticles = async ({
+  sort_by = "created_at",
+  order = "DESC",
+  filter_by,
+  topic,
+}) => {
   const validColumns = [
     "article_id",
     "title",
@@ -11,23 +16,23 @@ exports.fetchArticles = async (query) => {
     "votes",
     "article_img_url",
   ];
-  const validOrders = ["ASC", "DESC"];
+  const validOrders = ["asc", "desc", "ASC", "DESC"];
 
-  const sortBy = validColumns.includes(query.sort_by)
-    ? query.sort_by
-    : "created_at";
-  const order = validOrders.includes(query.order)
-    ? query.order.toUpperCase()
-    : "DESC";
+  if (
+    !validColumns.includes(sort_by) ||
+    !validOrders.includes(order) ||
+    (filter_by && !validColumns.includes(filter_by))
+  )
+    return Promise.reject({ status: 400, msg: "400 Bad Request" });
 
   let filter = "";
-  if (validColumns.includes(query.filter_by) && query.topic) {
+  if (validColumns.includes(filter_by) && topic) {
     filter = format(
       `
       WHERE a.%I = %L
       `,
-      query.filter_by,
-      query.topic
+      filter_by,
+      topic
     );
   }
 
@@ -50,7 +55,7 @@ exports.fetchArticles = async (query) => {
       ORDER BY a.%I %s
       `,
       filter,
-      sortBy,
+      sort_by,
       order
     )
   );
@@ -73,7 +78,7 @@ exports.fetchArticleById = async (id) => {
   return article[0] || Promise.reject({ status: 404, msg: "404 Not Found" });
 };
 
-exports.fetchCommentsOnArticle = async (id) => {
+exports.fetchCommentsByArticle = async (id) => {
   const { rows: comments } = await db.query(
     `
     SELECT *
@@ -88,7 +93,7 @@ exports.fetchCommentsOnArticle = async (id) => {
     : Promise.reject({ status: 404, msg: "404 Not Found" });
 };
 
-exports.postComment = async (id, { body, username }) => {
+exports.insertComment = async (id, { body, username }) => {
   if (body && username) {
     const { rows: comments } = await db.query(
       `
@@ -102,7 +107,7 @@ exports.postComment = async (id, { body, username }) => {
   } else {
     return Promise.reject({
       status: 400,
-      msg: "400 Bad Request: Invalid Field(s)",
+      msg: "400 Bad Request: one or more fields are invalid.",
     });
   }
 };
@@ -117,5 +122,31 @@ exports.updateVotes = async (id, inc_votes) => {
     `,
     [inc_votes, id]
   );
+  return articles[0];
+};
+
+exports.insertArticle = async (body) => {
+  const validColumns = ["title", "topic", "author", "body", "article_img_url"];
+
+  for (const key of Object.keys(body)) {
+    if (!validColumns.includes(key)) {
+      throw {
+        status: 400,
+        msg: "400 Bad Request",
+      };
+    }
+  }
+
+  if (body.article_img_url === undefined) body.article_img_url = null;
+
+  const { rows: articles } = await db.query(
+    `
+    INSERT INTO articles (title, topic, author, body, article_img_url)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *;
+    `,
+    [body.title, body.topic, body.author, body.body, body.article_img_url]
+  );
+  articles[0].comment_count = 0;
   return articles[0];
 };

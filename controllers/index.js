@@ -1,10 +1,27 @@
-exports.getApi = require("./api.controller").getApi;
-exports.getTopics = require("./topics.controllers").getTopics;
-exports.getArticles = require("./articles.controllers").getArticles;
-exports.getUsers = require("./users.controllers").getUsers;
-exports.getArticleById = require("./articles.controllers").getArticleById;
-exports.getCommentsOnArticle =
-  require("./articles.controllers").getCommentsOnArticle;
-exports.postComment = require("./articles.controllers").postComment;
-exports.patchArticle = require("./articles.controllers").patchArticle;
-exports.deleteComment = require("./comments.controllers").deleteComment;
+const { getApi } = require("./api.controller");
+const { getTopics } = require("./topics.controllers");
+const { getUsers, getUserByUsername } = require("./users.controllers");
+const {
+  getArticles,
+  getArticleById,
+  getCommentsByArticle,
+  postComment,
+  patchArticleVotes,
+  postArticle,
+} = require("./articles.controllers");
+const { removeComment, patchCommentVotes } = require("./comments.controllers");
+
+module.exports = {
+  getApi,
+  getTopics,
+  getUsers,
+  getUserByUsername,
+  getArticles,
+  getArticleById,
+  getCommentsByArticle,
+  postComment,
+  patchArticleVotes,
+  removeComment,
+  patchCommentVotes,
+  postArticle,
+};

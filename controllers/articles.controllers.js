@@ -1,9 +1,10 @@
 const {
   fetchArticles,
   fetchArticleById,
-  fetchCommentsOnArticle,
-  postComment,
+  fetchCommentsByArticle,
+  insertComment,
   updateVotes,
+  insertArticle,
 } = require("../models/articles.models");
 
 exports.getArticles = async ({ query }, res) => {
@@ -16,20 +17,25 @@ exports.getArticleById = async ({ params: { article_id } }, res) => {
   res.send({ article });
 };
 
-exports.getCommentsOnArticle = async ({ params: { article_id } }, res) => {
-  const comments = await fetchCommentsOnArticle(article_id);
+exports.getCommentsByArticle = async ({ params: { article_id } }, res) => {
+  const comments = await fetchCommentsByArticle(article_id);
   res.send({ comments });
 };
 
 exports.postComment = async ({ params: { article_id }, body }, res) => {
-  const comment = await postComment(article_id, body);
+  const comment = await insertComment(article_id, body);
   res.send({ comment });
 };
 
-exports.patchArticle = async (
+exports.patchArticleVotes = async (
   { params: { article_id }, body: { inc_votes } },
   res
 ) => {
   const article = await updateVotes(article_id, inc_votes);
+  res.send({ article });
+};
+
+exports.postArticle = async ({ body }, res) => {
+  const article = await insertArticle(body);
   res.send({ article });
 };
