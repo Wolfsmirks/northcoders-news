@@ -9,7 +9,7 @@ const {
 
 exports.getArticles = async ({ query }, res) => {
   const articles = await fetchArticles(query);
-  res.send({ articles });
+  res.send({ total_count: articles.length, articles });
 };
 
 exports.getArticleById = async ({ params: { article_id } }, res) => {
@@ -17,8 +17,11 @@ exports.getArticleById = async ({ params: { article_id } }, res) => {
   res.send({ article });
 };
 
-exports.getCommentsByArticle = async ({ params: { article_id } }, res) => {
-  const comments = await fetchCommentsByArticle(article_id);
+exports.getCommentsByArticle = async (
+  { params: { article_id }, query },
+  res
+) => {
+  const comments = await fetchCommentsByArticle(article_id, query);
   res.send({ comments });
 };
 

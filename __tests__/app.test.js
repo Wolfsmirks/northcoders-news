@@ -16,6 +16,7 @@ describe("GET /api", () => {
     expect(endpoints).toEqual(endpointsJson);
   });
 });
+
 describe("topic endpoints", () => {
   describe("GET /api/topics", () => {
     it("200: responds with an array of topic objects", async () => {
@@ -26,6 +27,7 @@ describe("topic endpoints", () => {
     });
   });
 });
+
 describe("user endpoints", () => {
   describe("GET /api/users", () => {
     it("200: responds with an array of user objects", async () => {
@@ -55,6 +57,7 @@ describe("user endpoints", () => {
     });
   });
 });
+
 describe("article endpoints", () => {
   describe("GET /api/articles", () => {
     it("200: responds with an array of article objects in descending order (most recent first)", async () => {
@@ -158,6 +161,12 @@ describe("article endpoints", () => {
       } = await request(app).get("/api/articles?page=1").expect(200);
       expect(articles).toHaveLength(10);
     });
+    it("200: response object includes a total_count property", async () => {
+      const { body } = await request(app)
+        .get("/api/articles?limit=2&page=2")
+        .expect(200);
+      expect(body.total_count).toBe(2);
+    });
     it("400: responds with an error message when the limit value is invalid", async () => {
       const { body: err } = await request(app)
         .get("/api/articles?limit=NaN&page=2")
@@ -221,6 +230,53 @@ describe("article endpoints", () => {
         );
       });
       expect(comments).toBeSortedBy("created_at", { descending: true });
+    });
+  });
+  describe("GET /api/articles/:article_id/comments?limit", () => {
+    it("200: responds with an array of comment objects from the specified article limited by the query value", async () => {
+      const {
+        body: { comments },
+      } = await request(app)
+        .get("/api/articles/1/comments?limit=2&page=2")
+        .expect(200);
+      expect(comments.length).toBeGreaterThan(0);
+      expect(comments).toEqual([
+        {
+          article_id: 1,
+          author: "butter_bridge",
+          body: "This morning, I showered for nine minutes.",
+          comment_id: 18,
+          created_at: "2020-07-21T00:20:00.000Z",
+          votes: 16,
+        },
+        {
+          article_id: 1,
+          author: "icellusedkars",
+          body: "Fruit pastilles",
+          comment_id: 13,
+          created_at: "2020-06-15T10:25:00.000Z",
+          votes: 0,
+        },
+      ]);
+      expect(comments).toBeSortedBy("created_at", { descending: true });
+    });
+    it("200: limit defaults to 10 when omitted", async () => {
+      const {
+        body: { comments },
+      } = await request(app).get("/api/articles/1/comments?page=1").expect(200);
+      expect(comments).toHaveLength(10);
+    });
+    it("400: responds with an error message when the limit value is invalid", async () => {
+      const { body: err } = await request(app)
+        .get("/api/articles/1/comments?limit=NaN&page=2")
+        .expect(400);
+      expect(err).toEqual({ msg: "400 Bad Request" });
+    });
+    it("400: responds with an error message when the page value is invalid", async () => {
+      const { body: err } = await request(app)
+        .get("/api/articles/1/comments?limit=2&page=NaN")
+        .expect(400);
+      expect(err).toEqual({ msg: "400 Bad Request" });
     });
   });
   describe("POST /api/articles", () => {
@@ -432,9 +488,10 @@ describe("article endpoints", () => {
     });
   });
 });
+
 describe("comment endpoints", () => {
   describe("DELETE /api/comments/:comment_id", () => {
-    it("204: response object includes a noContent key of value true", async () => {
+    it("204: response object includes a noContent property of value true", async () => {
       const { noContent } = await request(app)
         .delete("/api/comments/1")
         .expect(204);

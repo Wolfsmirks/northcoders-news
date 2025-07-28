@@ -61,7 +61,7 @@ exports.fetchArticles = async ({
       %s
       GROUP BY a.article_id 
       ORDER BY a.%I %s
-      LIMIT %L OFFSET %L
+      LIMIT %L OFFSET %L;
       `,
       filter,
       sort_by,
@@ -89,15 +89,21 @@ exports.fetchArticleById = async (id) => {
   return article[0] || Promise.reject({ status: 404, msg: "404 Not Found" });
 };
 
-exports.fetchCommentsByArticle = async (id) => {
+exports.fetchCommentsByArticle = async (id, { limit = 10, page = 1 }) => {
+  if (isNaN(limit) || limit <= 0 || isNaN(page) || page <= 0)
+    return Promise.reject({ status: 400, msg: "400 Bad Request" });
+
+  const offset = (page - 1) * limit;
+
   const { rows: comments } = await db.query(
     `
     SELECT *
     FROM comments
     WHERE article_id = $1
-    ORDER BY created_at DESC;
+    ORDER BY created_at DESC
+    LIMIT $2 OFFSET $3;
     `,
-    [id]
+    [id, limit, offset]
   );
   return comments.length > 0
     ? comments
