@@ -6,6 +6,8 @@ exports.fetchArticles = async ({
   order = "DESC",
   filter_by,
   topic,
+  limit = 10,
+  page = 1,
 }) => {
   const validColumns = [
     "article_id",
@@ -21,7 +23,11 @@ exports.fetchArticles = async ({
   if (
     !validColumns.includes(sort_by) ||
     !validOrders.includes(order) ||
-    (filter_by && !validColumns.includes(filter_by))
+    (filter_by && !validColumns.includes(filter_by)) ||
+    isNaN(limit) ||
+    limit <= 0 ||
+    isNaN(page) ||
+    page <= 0
   )
     return Promise.reject({ status: 400, msg: "400 Bad Request" });
 
@@ -35,6 +41,8 @@ exports.fetchArticles = async ({
       topic
     );
   }
+
+  const offset = (page - 1) * limit;
 
   const { rows: articles } = await db.query(
     format(
@@ -53,10 +61,13 @@ exports.fetchArticles = async ({
       %s
       GROUP BY a.article_id 
       ORDER BY a.%I %s
+      LIMIT %L OFFSET %L
       `,
       filter,
       sort_by,
-      order
+      order,
+      limit,
+      offset
     )
   );
   return articles;

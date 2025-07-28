@@ -121,6 +121,56 @@ describe("article endpoints", () => {
       expect(err).toEqual({ msg: "400 Bad Request" });
     });
   });
+  describe("GET /api/articles?limit", () => {
+    it("200: responds with an array of article objects limited by the query values", async () => {
+      const {
+        body: { articles },
+      } = await request(app).get("/api/articles?limit=2&page=2").expect(200);
+      expect(articles.length).toBeGreaterThan(0);
+      expect(articles).toEqual([
+        {
+          author: "icellusedkars",
+          title: "Sony Vaio; or, The Laptop",
+          article_id: 2,
+          topic: "mitch",
+          created_at: "2020-10-16T05:03:00.000Z",
+          votes: 0,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          comment_count: 0,
+        },
+        {
+          author: "butter_bridge",
+          title: "Another article about Mitch",
+          article_id: 13,
+          topic: "mitch",
+          created_at: "2020-10-11T11:24:00.000Z",
+          votes: 0,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          comment_count: 0,
+        },
+      ]);
+    });
+    it("200: limit defaults to 10 when omitted", async () => {
+      const {
+        body: { articles },
+      } = await request(app).get("/api/articles?page=1").expect(200);
+      expect(articles).toHaveLength(10);
+    });
+    it("400: responds with an error message when the limit value is invalid", async () => {
+      const { body: err } = await request(app)
+        .get("/api/articles?limit=NaN&page=2")
+        .expect(400);
+      expect(err).toEqual({ msg: "400 Bad Request" });
+    });
+    it("400: responds with an error message when the page value is invalid", async () => {
+      const { body: err } = await request(app)
+        .get("/api/articles?limit=2&page=NaN")
+        .expect(400);
+      expect(err).toEqual({ msg: "400 Bad Request" });
+    });
+  });
   describe("GET /api/articles/:article_id", () => {
     it("200: responds with the specified article object", async () => {
       const {
