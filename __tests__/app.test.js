@@ -531,6 +531,18 @@ describe("article endpoints", () => {
       expect(err).toEqual({ msg: "400 Bad Request" });
     });
   });
+  describe("DELETE /api/articles/:article_id", () => {
+    it("204: response object includes a noContent property of value true", async () => {
+      const { noContent } = await request(app)
+        .delete("/api/articles/1")
+        .expect(204);
+      const { rows: comments } = await db.query(
+        "SELECT * FROM comments WHERE article_id = 1;"
+      );
+      expect(noContent).toBe(true);
+      expect(comments).toHaveLength(0);
+    });
+  });
 });
 
 describe("comment endpoints", () => {

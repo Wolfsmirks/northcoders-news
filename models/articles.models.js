@@ -167,3 +167,15 @@ exports.insertArticle = async (body) => {
   articles[0].comment_count = 0;
   return articles[0];
 };
+
+exports.deleteArticle = async (id) => {
+  const { rows: articles } = await db.query(
+    `
+    DELETE FROM articles
+    WHERE article_id = $1
+    RETURNING *;
+    `,
+    [id]
+  );
+  return articles[0];
+};

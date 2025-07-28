@@ -5,6 +5,7 @@ const {
   insertComment,
   updateVotes,
   insertArticle,
+  deleteArticle,
 } = require("../models/articles.models");
 
 exports.getArticles = async ({ query }, res) => {
@@ -41,4 +42,11 @@ exports.patchArticleVotes = async (
 exports.postArticle = async ({ body }, res) => {
   const article = await insertArticle(body);
   res.send({ article });
+};
+
+exports.removeArticle = async ({ params: { article_id } }, res) => {
+  const article = await deleteArticle(article_id);
+  return article
+    ? res.status(204).send()
+    : Promise.reject({ status: 404, msg: "404 Not Found" });
 };

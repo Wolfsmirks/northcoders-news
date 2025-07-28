@@ -8,6 +8,7 @@ const {
   postComment,
   patchArticleVotes,
   postArticle,
+  removeArticle,
 } = require("./articles.controllers");
 const { removeComment, patchCommentVotes } = require("./comments.controllers");
 
@@ -25,4 +26,5 @@ module.exports = {
   patchCommentVotes,
   postArticle,
   postTopic,
+  removeArticle,
 };
