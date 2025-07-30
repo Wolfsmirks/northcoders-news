@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NC News API Reference</title>
+  </head>
+  <body>
+    <h1>NC News API Reference</h1>
+    <div>
+      <nav>
+        <ol>
+          <li><a href="#S1">Introduction</a></li>
+          <li><a href="#S2">Topics</a></li>
+          <li><a href="#S3">Users</a></li>
+          <li><a href="#S4">Articles</a></li>
+          <li><a href="#S5">Comments</a></li>
+        </ol>
+      </nav>
+    </div>
+    <section id="S1">
+      <h2>API Reference</h2>
+      <p>
+        The Northcoders News API is organised around
+        <a href="https://en.wikipedia.org/wiki/REST">REST</a>. This API has
+        predictable resource-oriented URLs, accepts
+        <a
+          href="https://en.wikipedia.org/wiki/POST_(HTTP)#Use_for_submitting_web_forms"
+          >form-encoded</a
+        >
+        request bodies, returns
+        <a href="https://www.json.org/json-en.html">JSON-encoded</a> responses,
+        and uses standard HTTP response codes, authentication, and verbs.
+      </p>
+    </section>
+    <section id="S2">
+      <h2>Topics</h2>
+      <p>
+        This is an object representing a particular topic. You can retrieve a
+        list of all topics, or create a new topic of your choosing.
+      </p>
+      <h3>Endpoints</h3>
+      <ul>
+        <li>GET /api/topics</li>
+        <li>POST /api/topics</li>
+      </ul>
+      <h3>Retrieve all topics</h3>
+      <p>/api/topics</p>
+      <h3>Example Response</h3>
+      <pre><code>{
+  "topics": [
+    {
+      "slug": "football",
+      "description": "Footie!",
+      "img_url": null,
+    }
+  ]
+}
+      </code></pre>
+      <h3>Create topic</h3>
+      <p>/api/topics</p>
+      <h3>Example Request</h3>
+      <p>
+        <code>img_url</code> is an optional field. It will default to
+        <code>null</code>.
+      </p>
+      <pre><code>{
+    "slug": football,
+    "description": "Footie!",
+    "img_url": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Football_Pallo_valmiina-cropped.jpg"    
+}
+      </code></pre>
+    </section>
+    <section id="S3">
+      <h2>Users</h2>
+      <p>
+        This is an object representing a particular user. You can retrieve a
+        list of all users, or search for a specific user.
+      </p>
+      <h3>Endpoints</h3>
+      <ul>
+        <li>GET /api/users</li>
+        <li>GET /api/users/:username</li>
+      </ul>
+      <h3>Retrieve all users</h3>
+      <p>/api/users</p>
+      <h3>Example Response</h3>
+      <pre><code>{
+  "users": [
+    {
+      "username": "butter_bridge",
+      "name": "jonny",
+      "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+    }
+  ]
+}
+      </code></pre>
+      <h3>Find user</h3>
+      <p>/api/users/butter_bridge</p>
+      <h3>Example Response</h3>
+      <pre><code>{
+    "username": "butter_bridge",
+    "name": "jonny",
+    "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+}
+      </code></pre>
+    </section>
+    <section id="S3">
+      <h2>Articles</h2>
+      <p>
+        This is an object representing a particular article. You can retrieve a
+        list of all articles, a list of all the comments on an article, or
+        search for a specific article.
+      </p>
+      <p>
+        You can also post a new article, comment on an existing article,
+        increase or decrease vote count, or delete an article and its comments.
+      </p>
+      <h3>Endpoints</h3>
+      <ul>
+        <li>GET /api/articles</li>
+        <li>POST /api/articles</li>
+        <li>GET /api/articles/:article_id</li>
+        <li>PATCH /api/articles/:article_id</li>
+        <li>DELETE /api/articles/:article_id</li>
+        <li>GET /api/articles/:article_id/comments</li>
+        <li>POST /api/articles/:article_id/comments</li>
+      </ul>
+      <h3>Retrieve all articles</h3>
+      <p>/api/articles</p>
+      <h3>Example Response</h3>
+      <p>
+        <code>created_at</code> is formatted using
+        <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO8601</a>
+      </p>
+      <pre><code>{
+  "articles": [
+    {
+      "article_id": 1,
+      "title": "Living in the shadow of a great man",
+      "topic": "mitch",
+      "author": "butter_bridge",
+      "body": "I find this existence challenging",
+      "created_at": "2020-07-09T20:11:00.000Z",
+      "votes": 100,
+      "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    }
+  ]
+}
+      </code></pre>
+      <h3>Post a new article</h3>
+      <p>/api/articles</p>
+      <h3>Example Request</h3>
+      <p>
+        <code>topic</code> and <code>author</code> must already exist within
+        topics and users respectively.
+        <p><code>article_img_url</code> is an optional field. It will default to null.</p>
+      </p>
+      <pre><code>{
+    "title": "Living in the shadow of a great man",
+    "topic": "mitch",
+    "author": "butter_bridge",
+    "body": "I find this existence challenging",
+    "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+}
+      </code></pre>
+      <h3>Find article</h3>
+      <p>/api/articles/1</p>
+      <h3>Example Response</h3>
+      <pre><code>{
+    "article_id": 1,
+    "title": "Living in the shadow of a great man",
+    "topic": "mitch",
+    "author": "butter_bridge",
+    "body": "I find this existence challenging",
+    "created_at": "2020-07-09T20:11:00.000Z",
+    "votes": 100,
+    "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+}
+      </code></pre>
+      <h3>Update article votes</h3>
+      <p>/api/articles/1</p>
+      <h3>Example Request</h3>
+      <p><code>newVote</code> is a number representing how the vote count will be modified (e.g. +1, -1 etc.)</p>
+      <pre><code>{
+    "inc_votes: newVote"
+}
+      </code></pre>
+      <h3>Remove article (including comments)</h3>
+      <p>/api/articles/1</p>
+      <h3>Retrieve an article's comments</h3>
+      <p>/api/articles/1/comments</p>
+      <h3>Example Response</h3>
+      <pre><code>
+        
+      </code></pre>
+    </section>
+    <section id="S4"></section>
+  </body>
+</html>
