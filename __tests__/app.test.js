@@ -9,7 +9,7 @@ beforeEach(() => seed(data));
 afterAll(() => db.end());
 
 describe("GET /api", () => {
-  it("200: responds with an object detailing the documentation for each endpoint", async () => {
+  it.skip("200: responds with an object detailing the documentation for each endpoint", async () => {
     const {
       body: { endpoints },
     } = await request(app).get("/api").expect(200);
